@@ -1,0 +1,76 @@
+name: Import GitLab Repository
+
+on:
+  repository_dispatch:
+    types: [import-gitlab-repo]
+
+jobs:
+  import-repo:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout GitHub repository
+        uses: actions/checkout@v2
+
+      - name: Install Git
+        run: sudo apt-get install git
+
+      - name: Clone GitLab repository
+        env:
+          GITLAB_TOKEN: ${{ secrets.GITLAB_TOKEN }}
+          # TODO: How do we want to compose the github url?
+          # git remote add origin https://github.com/${{ github.repository_owner }}/${{ github.event.client_payload.github_repo }}.git
+        run: |
+          $GITLAB_TOKEN=''
+          $GITHUB_TOKEN = ''
+          $GITHUB_USERNAME='JohnWhite3Cloud'
+          # Infer the repo name from the GitLab URL
+          $REPO_NAME = (Split-Path -Path $GITLAB_URL -Leaf) -replace "\.git$"
+          echo "Migrating: $($REPO_NAME)"
+          function GitHubRepoExistence {
+          param(
+              [string]$repoUrl
+          )
+          try {
+              $response = Invoke-WebRequest -Uri $repoUrl -Method Get -UseBasicParsing -ErrorAction Stop
+              if ($response.StatusCode -eq 200) {
+                  return $true
+              } else {
+                  return $false
+              }
+          } catch {
+              return $false
+          }
+          }
+
+          # Clone the GitLab repository
+          echo $GITLAB_URL
+          git clone $GITLAB_URL
+          cd $REPO_NAME
+
+          # Check if the GitHub repository exists
+          $GITHUB_URL="https://github.com/${GITHUB_USERNAME}/${REPO_NAME}.git"
+          $result = GitHubRepoExistence($GITHUB_URL)
+          echo "Github repo already exists result: $($result)"
+
+          # Create the GitHub repository if it doesn't exist
+          if ( !$result ){
+          $body = @{
+              name = $REPO_NAME
+          } | ConvertTo-Json
+          Invoke-RestMethod -Uri "https://api.github.com/user/repos" -Method Post -Headers @{Authorization = "token $GITHUB_TOKEN"} -Body $body -ContentType "application/json"
+          }
+
+          # Remove the existing origin
+          git remote remove origin
+          # Add the new origin
+          echo "Updating origin"
+          git remote add origin $GITHUB_URL
+          echo "Pushing to origin"
+
+          # Push all branches and tags to the new origin
+          git push -u origin --all
+          git push -u origin --tags
+
+          # Back home
+          cd ..
