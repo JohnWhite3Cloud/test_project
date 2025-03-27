@@ -47,6 +47,7 @@ jobs:
           # Clone the GitLab repository
           echo ${{ github.event.client_payload.gitlab_url }}
           git clone https://${{ secrets.GL_USERNAME }}:${{ secrets.GL_TOKEN }}@ExpeditorsGitLabApp-devopslab.centralus.cloudapp.azure.com/${{ github.event.client_payload.gitlab_url }}.git
+          echo $REPO_NAME " cloned locally"
           cd $REPO_NAME
 
           # Check if the GitHub repository exists
