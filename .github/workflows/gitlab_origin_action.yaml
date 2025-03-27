@@ -18,11 +18,10 @@ jobs:
       - name: Clone GitLab repository
         env:
           GITLAB_TOKEN: ${{ secrets.GITLAB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
           # TODO: How do we want to compose the github url?
           # git remote add origin https://github.com/${{ github.repository_owner }}/${{ github.event.client_payload.github_repo }}.git
         run: |
-          $GITLAB_TOKEN=''
-          $GITHUB_TOKEN = ''
           $GITHUB_USERNAME='JohnWhite3Cloud'
           # Infer the repo name from the GitLab URL
           $REPO_NAME = (Split-Path -Path $GITLAB_URL -Leaf) -replace "\.git$"
@@ -58,7 +57,7 @@ jobs:
           $body = @{
               name = $REPO_NAME
           } | ConvertTo-Json
-          Invoke-RestMethod -Uri "https://api.github.com/user/repos" -Method Post -Headers @{Authorization = "token $GITHUB_TOKEN"} -Body $body -ContentType "application/json"
+          Invoke-RestMethod -Uri "https://api.github.com/user/repos" -Method Post -Headers @{Authorization = "token $GH_TOKEN"} -Body $body -ContentType "application/json"
           }
 
           # Remove the existing origin
