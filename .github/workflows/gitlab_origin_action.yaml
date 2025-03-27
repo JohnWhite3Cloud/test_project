@@ -22,9 +22,9 @@ jobs:
           # TODO: How do we want to compose the github url?
           # git remote add origin https://github.com/${{ github.repository_owner }}/${{ github.event.client_payload.github_repo }}.git
         run: |
-          $GITHUB_USERNAME='JohnWhite3Cloud'
+          GITHUB_USERNAME='JohnWhite3Cloud'
           # Infer the repo name from the GitLab URL
-          $REPO_NAME = (Split-Path -Path $GITLAB_URL -Leaf) -replace "\.git$"
+          REPO_NAME = (Split-Path -Path $GITLAB_URL -Leaf) -replace "\.git$"
           echo "Migrating: $($REPO_NAME)"
           function GitHubRepoExistence {
           param(
