@@ -26,7 +26,7 @@ jobs:
           # git remote add origin https://github.com/${{ github.repository_owner }}/${{ github.event.client_payload.github_repo }}.git
         run: |
           # Infer the repo name from the GitLab URL
-          $REPO_NAME=(Split-Path -Path ${{ github.event.client_payload.gitlab_url }} -Leaf) -replace "\.git$"
+          $REPO_NAME=Split-Path -Path ${{ github.event.client_payload.gitlab_url }} -Leaf
           echo "Migrating: $($REPO_NAME)"
           function GitHubRepoExistence {
           param(
@@ -46,7 +46,7 @@ jobs:
 
           # Clone the GitLab repository
           echo ${{ github.event.client_payload.gitlab_url }}
-          git clone https://${{ secrets.GL_USERNAME }}:${{ secrets.GL_TOKEN }}@gitlab.com/${{ github.event.client_payload.gitlab_url }}.git
+          git clone https://${{ secrets.GL_USERNAME }}:${{ secrets.GL_TOKEN }}@ExpeditorsGitLabApp-devopslab.centralus.cloudapp.azure.com/${{ github.event.client_payload.gitlab_url }}.git
           cd $REPO_NAME
 
           # Check if the GitHub repository exists
