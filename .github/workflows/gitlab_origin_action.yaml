@@ -25,8 +25,7 @@ jobs:
         run: |
           $GITHUB_USERNAME='JohnWhite3Cloud'
           # Infer the repo name from the GitLab URL
-          $GITLAB_URL=${{ github.event.client_payload.gitlab_url }}
-          $REPO_NAME=(Split-Path -Path $GITLAB_URL -Leaf) -replace "\.git$"
+          $REPO_NAME=(Split-Path -Path ${{ github.event.client_payload.gitlab_url }} -Leaf) -replace "\.git$"
           echo "Migrating: $($REPO_NAME)"
           function GitHubRepoExistence {
           param(
@@ -45,8 +44,8 @@ jobs:
           }
 
           # Clone the GitLab repository
-          echo $GITLAB_URL
-          git clone $GITLAB_URL
+          echo ${{ github.event.client_payload.gitlab_url }}
+          git clone ${{ github.event.client_payload.gitlab_url }}
           cd $REPO_NAME
 
           # Check if the GitHub repository exists
