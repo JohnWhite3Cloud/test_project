@@ -25,8 +25,6 @@ jobs:
           # TODO: How do we want to compose the github url?
           # git remote add origin https://github.com/${{ github.repository_owner }}/${{ github.event.client_payload.github_repo }}.git
         run: |
-          $GH_USERNAME=${{ secrets.GH_USERNAME }}
-          $GITHUB_TOKEN=$env:GH_TOKEN
           # Infer the repo name from the GitLab URL
           $REPO_NAME=(Split-Path -Path ${{ github.event.client_payload.gitlab_url }} -Leaf) -replace "\.git$"
           echo "Migrating: $($REPO_NAME)"
@@ -68,7 +66,7 @@ jobs:
           git remote remove origin
           # Add the new origin
           echo "Updating origin"
-          git remote add origin https://x-access-token:${GITHUB_TOKEN}@github.com/$GH_USERNAME/${REPO_NAME}.git
+          git remote add origin https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/$GH_USERNAME/${REPO_NAME}.git
           echo "Pushing to origin"
 
           # Push all branches and tags to the new origin
