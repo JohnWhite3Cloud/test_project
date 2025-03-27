@@ -24,6 +24,7 @@ jobs:
           # git remote add origin https://github.com/${{ github.repository_owner }}/${{ github.event.client_payload.github_repo }}.git
         run: |
           $GITHUB_USERNAME='JohnWhite3Cloud'
+          $GITHUB_TOKEN=$env:GH_TOKEN
           # Infer the repo name from the GitLab URL
           $REPO_NAME=(Split-Path -Path ${{ github.event.client_payload.gitlab_url }} -Leaf) -replace "\.git$"
           echo "Migrating: $($REPO_NAME)"
@@ -58,7 +59,7 @@ jobs:
           $body = @{
               name = $REPO_NAME
           } | ConvertTo-Json
-          Invoke-RestMethod -Uri "https://api.github.com/user/repos" -Method Post -Headers @{Authorization = "token $GH_TOKEN"} -Body $body -ContentType "application/json"
+          Invoke-RestMethod -Uri "https://api.github.com/user/repos" -Method Post -Headers @{Authorization = "token $GITHUB_TOKEN"} -Body $body -ContentType "application/json"
           }
 
           # Remove the existing origin
