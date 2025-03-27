@@ -18,12 +18,14 @@ jobs:
       - name: Clone GitLab repository
         shell: pwsh
         env:
-          GITLAB_TOKEN: ${{ secrets.GITLAB_TOKEN }}
+          GL_USERNAME: ${{ secrets.GL_USERNAME }}
+          GL_TOKEN: ${{ secrets.GL_TOKEN }}
+          GH_USERNAME: ${{ secrets.GH_USERNAME }}
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
           # TODO: How do we want to compose the github url?
           # git remote add origin https://github.com/${{ github.repository_owner }}/${{ github.event.client_payload.github_repo }}.git
         run: |
-          $GITHUB_USERNAME='JohnWhite3Cloud'
+          $GH_USERNAME=${{ secrets.GH_USERNAME }}
           $GITHUB_TOKEN=$env:GH_TOKEN
           # Infer the repo name from the GitLab URL
           $REPO_NAME=(Split-Path -Path ${{ github.event.client_payload.gitlab_url }} -Leaf) -replace "\.git$"
@@ -46,11 +48,11 @@ jobs:
 
           # Clone the GitLab repository
           echo ${{ github.event.client_payload.gitlab_url }}
-          git clone ${{ github.event.client_payload.gitlab_url }}
+          git clone https://${{ secrets.GL_USERNAME }}:${{ secrets.GL_TOKEN }}@gitlab.com/${{ github.event.client_payload.gitlab_url }}.git
           cd $REPO_NAME
 
           # Check if the GitHub repository exists
-          $GITHUB_URL="https://github.com/${GITHUB_USERNAME}/${REPO_NAME}.git"
+          $GITHUB_URL="https://github.com/${GH_USERNAME}/${REPO_NAME}.git"
           $result = GitHubRepoExistence($GITHUB_URL)
           echo "Github repo already exists result: $($result)"
 
@@ -66,7 +68,7 @@ jobs:
           git remote remove origin
           # Add the new origin
           echo "Updating origin"
-          git remote add origin https://x-access-token:${GITHUB_TOKEN}@github.com/$GITHUB_USERNAME/${REPO_NAME}.git
+          git remote add origin https://x-access-token:${GITHUB_TOKEN}@github.com/$GH_USERNAME/${REPO_NAME}.git
           echo "Pushing to origin"
 
           # Push all branches and tags to the new origin
