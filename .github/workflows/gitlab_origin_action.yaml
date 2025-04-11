@@ -26,7 +26,10 @@ jobs:
           # git remote add origin https://github.com/${{ github.repository_owner }}/${{ github.event.client_payload.github_repo }}.git
         run: |
           # Infer the repo name from the GitLab URL
-          $REPO_NAME=Split-Path -Path ${{ github.event.client_payload.gitlab_url }} -Leaf
+          $REPO_NAME_W_EXT=Split-Path -Path ${{ github.event.client_payload.gitlab_url }} -Leaf
+          # Remove extension
+          $REPO_NAME = $REPO_NAME_W_EXT -replace "\.git$", ""
+
           echo "Migrating: $($REPO_NAME)"
           function GitHubRepoExistence {
           param(
@@ -48,10 +51,11 @@ jobs:
           echo ${{ github.event.client_payload.gitlab_url }}
           git clone https://${{ secrets.GL_USERNAME }}:${{ secrets.GL_TOKEN }}@${{ github.event.client_payload.gitlab_url }}
           echo $REPO_NAME " cloned locally"
+
           cd $REPO_NAME
 
           # Check if the GitHub repository exists
-          $GITHUB_URL="https://github.com/${{ secrets.GH_USERNAME }}/${REPO_NAME}.git"
+          $GITHUB_URL="https://github.com/${{ secrets.GH_USERNAME }}/${REPO_NAME_W_EXT}"
           $result = GitHubRepoExistence($GITHUB_URL)
           echo "Github repo already exists result: $($result)"
 
@@ -67,7 +71,7 @@ jobs:
           git remote remove origin
           # Add the new origin
           echo "Updating origin"
-          git remote add origin https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/${{ secrets.GH_USERNAME }}/${REPO_NAME}.git
+          git remote add origin https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/${{ secrets.GH_USERNAME }}/${REPO_NAME_W_EXT}
           echo "Pushing to origin"
 
           # Push all branches and tags to the new origin
