@@ -2,7 +2,7 @@ name: Import GitLab Repository
 
 on:
   repository_dispatch:
-    types: [import-gitlab-repo]
+    types: [import-gitlab-repo-w-logs]
 
 jobs:
   import-repo:
