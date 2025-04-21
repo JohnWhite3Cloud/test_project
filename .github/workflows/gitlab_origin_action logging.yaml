@@ -1,4 +1,4 @@
-name: Import GitLab Repository
+name: Import GitLab Repository Dry Run
 
 on:
   repository_dispatch:
