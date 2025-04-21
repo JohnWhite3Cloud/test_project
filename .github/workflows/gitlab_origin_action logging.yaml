@@ -2,7 +2,7 @@ name: Import GitLab Repository
 
 on:
   repository_dispatch:
-    types: [import-gitlab-repo-w-logs]
+    types: [import-gitlab-repo-dryrun]
 
 jobs:
   import-repo:
