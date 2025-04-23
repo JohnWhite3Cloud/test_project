@@ -30,6 +30,7 @@ jobs:
           $REPO_NAME_W_EXT=Split-Path -Path ${{ github.event.client_payload.gitlab_url }} -Leaf
           # Remove extension
           $REPO_NAME = $REPO_NAME_W_EXT -replace "\.git$", ""
+          echo Migrating: $env:FINAL_REPO_NAME
           
           function GitHubRepoExistence {
           param(
