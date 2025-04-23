@@ -4,6 +4,9 @@ on:
   repository_dispatch:
     types: [import-gitlab-repo]
 
+env:
+  FINAL_REPO_NAME: ${{ github.event.client_payload.github_reponame }}
+
 jobs:
   import-repo:
     runs-on: ubuntu-latest
@@ -22,15 +25,14 @@ jobs:
           GL_TOKEN: ${{ secrets.GL_TOKEN }}
           GH_USERNAME: ${{ secrets.GH_USERNAME }}
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
-          # TODO: How do we want to compose the github url?
-          # git remote add origin https://github.com/${{ github.repository_owner }}/${{ github.event.client_payload.github_repo }}.git
         run: |
           # Infer the repo name from the GitLab URL
           $REPO_NAME_W_EXT=Split-Path -Path ${{ github.event.client_payload.gitlab_url }} -Leaf
           # Remove extension
           $REPO_NAME = $REPO_NAME_W_EXT -replace "\.git$", ""
+          $TARGET_REPO_NAME=${{github.event.client_payload.github_reponame}}
 
-          echo "Migrating: $($REPO_NAME)"
+          echo "Migrating: $($TARGET_REPO_NAME)"
           function GitHubRepoExistence {
           param(
               [string]$repoUrl
@@ -55,14 +57,14 @@ jobs:
           cd $REPO_NAME
 
           # Check if the GitHub repository exists
-          $GITHUB_URL="https://github.com/${{ secrets.GH_USERNAME }}/${REPO_NAME_W_EXT}"
+          $GITHUB_URL="https://github.com/${{ secrets.GH_USERNAME }}/${TARGET_REPO_NAME}.git"
           $result = GitHubRepoExistence($GITHUB_URL)
           echo "Github repo already exists result: $($result)"
 
           # Create the GitHub repository if it doesn't exist
           if ( !$result ){
           $body = @{
-              name = $REPO_NAME
+              name = $TARGET_REPO_NAME
           } | ConvertTo-Json
           Invoke-RestMethod -Uri "https://api.github.com/user/repos" -Method Post -Headers @{Authorization = "token ${{ secrets.GH_TOKEN }}"} -Body $body -ContentType "application/json"
           }
@@ -71,7 +73,7 @@ jobs:
           git remote remove origin
           # Add the new origin
           echo "Updating origin"
-          git remote add origin https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/${{ secrets.GH_USERNAME }}/${REPO_NAME_W_EXT}
+          git remote add origin https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/${{ secrets.GH_USERNAME }}/${TARGET_REPO_NAME}.git
           echo "Pushing to origin"
 
           # Push all branches and tags to the new origin
