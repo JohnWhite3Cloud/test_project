@@ -56,9 +56,8 @@ jobs:
 
           # Check if the GitHub repository exists
           $GITHUB_URL="https://github.com/${{ secrets.GH_USERNAME }}/${$env:FINAL_REPO_NAME}.git"
-          echo $GIHUB_URL
           $result = GitHubRepoExistence($GITHUB_URL)
-          echo "Github repo already exists result: $($result)"
+          echo "Github repo $($GIHUB_URL) already exists result: $($result)"
 
           # Create the GitHub repository if it doesn't exist
           if ( !$result ){
