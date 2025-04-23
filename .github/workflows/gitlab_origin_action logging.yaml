@@ -55,7 +55,7 @@ jobs:
           cd $REPO_NAME
 
           # Check if the GitHub repository exists
-          $GITHUB_URL="https://github.com/${{ secrets.GH_USERNAME }}/${FINAL_REPO_NAME}.git"
+          $GITHUB_URL="https://github.com/${{ secrets.GH_USERNAME }}/${$env:FINAL_REPO_NAME}.git"
           $result = GitHubRepoExistence($GITHUB_URL)
           echo "Github repo already exists result: $($result)"
 
