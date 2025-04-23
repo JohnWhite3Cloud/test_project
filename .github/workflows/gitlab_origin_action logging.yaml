@@ -84,6 +84,7 @@ jobs:
               apps = @()
               }
           } | ConvertTo-Json
+          echo $body
           Invoke-RestMethod -Uri "https://api.github.com/user/repos" -Method Post -Headers @{Authorization = "token ${{ secrets.GH_TOKEN }}"} -Body $body -ContentType "application/json"
           }
 
